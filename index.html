@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<!-- Define que o documento utiliza HTML5 -->
+
+<html lang="pt-BR">
+<!-- Define o idioma da página como Português do Brasil -->
+
+<head>
+    <meta charset="UTF-8">
+    <!-- Permite o uso de caracteres especiais e acentuação -->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Ajusta a página para dispositivos móveis -->
+
+    <title>TaskFlow - Gestão de Tarefas</title>
+    <!-- Título exibido na aba do navegador -->
+
+    <style>
+
+        /* Estilização geral da página */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Centraliza o título principal */
+        h1 {
+            text-align: center;
+        }
+
+        /* Área de entrada de tarefas */
+        .task-input {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        /* Campo de texto */
+        .task-input input {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #ffffff;
+            color: #333333;
+            border: 1px solid #ccc;
+        }
+
+        /* Botão Adicionar Tarefa */
+        .task-input button {
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Lista de tarefas */
+        .task-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Cada item da lista */
+        .task-list li {
+            background-color: white;
+            margin: 10px 0;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        /* Aparência da tarefa concluída */
+        .task-list li.completed {
+            text-decoration: line-through;
+            background-color: #d4edda;
+        }
+
+        /* Botões Excluir e Concluir */
+        .task-list button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        /* Área de feedback para o usuário */
+        #feedback {
+            visibility: hidden;
+            text-align: center;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #28a745;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- Título principal da aplicação -->
+    <h1>TaskFlow</h1>
+
+    <!-- Mensagem acessível para leitores de tela -->
+    <div id="feedback" aria-live="polite">
+        Tarefa adicionada!
+    </div>
+
+    <!-- Área para inserir novas tarefas -->
+    <div class="task-input">
+
+        <!-- Campo para digitação da tarefa -->
+        <input
+            type="text"
+            id="new-task"
+            placeholder="Digite sua tarefa"
+            aria-label="Campo para digitar nova tarefa"
+            tabindex="0">
+
+        <!-- Botão para adicionar tarefa -->
+        <button
+            id="add-task"
+            aria-label="Adicionar nova tarefa"
+            tabindex="0">
+            Adicionar Tarefa
+        </button>
+
+    </div>
+
+    <!-- Lista onde as tarefas serão exibidas -->
+    <ul class="task-list" id="task-list">
+        <!-- Novas tarefas serão inseridas via JavaScript -->
+    </ul>
+
+    <script>
+
+        // Obtém referências dos elementos HTML
+        const taskInput = document.getElementById('new-task');
+        const addTaskButton = document.getElementById('add-task');
+        const taskList = document.getElementById('task-list');
+        const feedback = document.getElementById('feedback');
+
+        // Função para adicionar uma nova tarefa
+        function addTask(taskText) {
+
+            // Cria um novo item da lista
+            const taskItem = document.createElement('li');
+
+            // Define o conteúdo da tarefa
+            taskItem.innerHTML = `
+                <span>${taskText}</span>
+
+                <div>
+                    <button
+                        onclick="completeTask(this)"
+                        aria-label="Marcar tarefa como concluída">
+                        Concluir
+                    </button>
+
+                    <button
+                        onclick="removeTask(this)"
+                        aria-label="Excluir tarefa">
+                        Excluir
+                    </button>
+                </div>
+            `;
+
+            // Adiciona o item à lista
+            taskList.appendChild(taskItem);
+
+            // Exibe mensagem de sucesso
+            feedback.innerText = 'Tarefa adicionada com sucesso!';
+            feedback.style.visibility = 'visible';
+
+            // Oculta a mensagem após 2 segundos
+            setTimeout(() => {
+                feedback.style.visibility = 'hidden';
+            }, 2000);
+        }
+
+        // Marca ou desmarca uma tarefa como concluída
+        function completeTask(button) {
+
+            // Localiza o item da lista
+            const taskItem = button.parentElement.parentElement;
+
+            // Alterna a classe completed
+            taskItem.classList.toggle('completed');
+        }
+
+        // Remove uma tarefa da lista
+        function removeTask(button) {
+
+            // Localiza o item da lista
+            const taskItem = button.parentElement.parentElement;
+
+            // Remove o item
+            taskList.removeChild(taskItem);
+
+            // Exibe mensagem de sucesso
+            feedback.innerText = 'Tarefa removida com sucesso!';
+            feedback.style.visibility = 'visible';
+
+            // Oculta após 2 segundos
+            setTimeout(() => {
+                feedback.style.visibility = 'hidden';
+            }, 2000);
+        }
+
+        // Evento do botão Adicionar Tarefa
+        addTaskButton.addEventListener('click', () => {
+
+            // Obtém o texto digitado
+            const taskText = taskInput.value;
+
+            // Verifica se o campo não está vazio
+            if (taskText) {
+
+                // Adiciona a tarefa
+                addTask(taskText);
+
+                // Limpa o campo
+                taskInput.value = '';
+
+                // Retorna o foco ao campo
+                taskInput.focus();
+            }
+        });
+
+        // Permite adicionar tarefa pressionando Enter
+        taskInput.addEventListener('keypress', (e) => {
+
+            if (e.key === 'Enter') {
+                addTaskButton.click();
+            }
+        });
+
+        // Atalho de acessibilidade:
+        // Ctrl + N posiciona o cursor no campo de tarefa
+        document.addEventListener('keydown', function(event) {
+
+            if (event.ctrlKey && event.key === 'n') {
+
+                // Move o foco para o campo de texto
+                taskInput.focus();
+            }
+        });
+
+    </script>
+  <!-- ACESSIBILIDADE IMPLEMENTADA NESTE PROJETO
+
+1. aria-live="polite"
+   Anuncia mensagens dinâmicas para leitores de tela.
+
+2. aria-label
+   Descreve campos e botões para tecnologias assistivas.
+
+3. tabindex="0"
+   Permite navegação por teclado.
+
+4. Tecla Enter
+   Permite adicionar tarefas sem utilizar o mouse.
+
+5. Atalho Ctrl + N
+   Move rapidamente o foco para o campo de entrada.
+
+6. Retorno automático do foco
+   Após adicionar uma tarefa, o cursor volta ao campo de texto.
+
+7. Contraste adequado de cores
+   Facilita a leitura para usuários com baixa visão.
+
+-->
+
+</body>
+</html>
